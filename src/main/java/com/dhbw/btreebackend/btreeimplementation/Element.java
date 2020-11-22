@@ -1,6 +1,6 @@
 package com.dhbw.btreebackend.btreeimplementation;
 
-public class Element {
+public class Element implements Comparable<Element>{
     private int key;
     private Node leftNode;
     private Node rightNode;
@@ -13,6 +13,11 @@ public class Element {
 
     public Element(int value) {
         this.key = value;
+    }
+
+    @Override
+    public int compareTo(Element o) {
+        return Integer.compare(this.key, o.getKey());
     }
 
     public int getKey() {
