@@ -1,7 +1,5 @@
 package com.dhbw.btreebackend.btreeimplementation;
 
-import java.util.Random;
-
 public class BTree {
     private int order;
     private Node root;
@@ -10,6 +8,12 @@ public class BTree {
         this.order = order;
     }
 
+    /**
+     * Insert a new element with the given key into the BTree.
+     * If the tree is empty create a new root node and add te new element to it.
+     * Otherwise search for insert position and insert new element the normal way.
+     * @param elementKey the key to insert.
+     */
     public void insertElement(int elementKey) {
         if(root == null) {
             this.root = new Node(null);
@@ -18,11 +22,17 @@ public class BTree {
             BTreeSearchResult insertPosition = searchElement(elementKey);
             if(!insertPosition.isFound()) {
                 insertPosition.getLocation().addElement(new Element(elementKey));
-                checkAndProcessOverflow(insertPosition.getLocation());
+                checkOverflow(insertPosition.getLocation());
             }
         }
     }
 
+    /**
+     * Search for the location of given key.
+     * @param elementKey the key to search for.
+     * @return BTreeSearchResult object containing information on whether the element was found,
+     *         where it was found and how many nodes had to be accessed.
+     */
     public BTreeSearchResult searchElement(int elementKey) {
         Node inspectedNode = this.root;
         int costs = 1;
@@ -38,26 +48,42 @@ public class BTree {
         }
     }
 
-    private void checkAndProcessOverflow(Node inspectedNode) {
+    /**
+     * Check whether an overflow occured in the given node.
+     * If so, split the node and recursivly call checkOverflow with parent node until a node without an overflow is reached
+     * the root was processed.
+     * @param inspectedNode the node to check.
+     */
+    private void checkOverflow(Node inspectedNode) {
         if(inspectedNode != null && inspectedNode.getNumberOfElements() > this.order) {
-            int splitIndex = (inspectedNode.getNumberOfElements() / 2);
-            Element splitElement = inspectedNode.getElements().get(splitIndex);
-            Node parentNode;
-            if(inspectedNode == this.root) {
-                parentNode = new Node(null);
-                this.root = parentNode;
-            } else {
-                parentNode = inspectedNode.getParentNode();
-            }
-            Node leftNode = new Node(parentNode, inspectedNode.getSmallerSplitSublistOfElements(splitIndex));
-            leftNode.setChildrenParent();
-            Node rightNode = new Node(parentNode, inspectedNode.getGreaterSplitSublistOfElements(splitIndex));
-            rightNode.setChildrenParent();
-            splitElement.setLeftNode(leftNode);
-            splitElement.setRightNode(rightNode);
-            parentNode.addElement(splitElement);
-            checkAndProcessOverflow(parentNode);
+            Node parentNode = splitNode(inspectedNode);
+            checkOverflow(parentNode);
         }
+    }
+
+    /**
+     * Split the given node into two new nodes. Create a new root if necessary.
+     * @param toSplit the node to split.
+     * @return the parent node of the split node. Might be a newly created root.
+     */
+    private Node splitNode(Node toSplit) {
+        int splitIndex = (toSplit.getNumberOfElements() / 2);
+        Element splitElement = toSplit.getElements().get(splitIndex);
+        Node parentNode;
+        if(toSplit == this.root) {
+            parentNode = new Node(null);
+            this.root = parentNode;
+        } else {
+            parentNode = toSplit.getParentNode();
+        }
+        Node leftNode = new Node(parentNode, toSplit.getSmallerSplitSublistOfElements(splitIndex));
+        leftNode.setChildrenParent();
+        Node rightNode = new Node(parentNode, toSplit.getGreaterSplitSublistOfElements(splitIndex));
+        rightNode.setChildrenParent();
+        splitElement.setLeftNode(leftNode);
+        splitElement.setRightNode(rightNode);
+        parentNode.addElement(splitElement);
+        return parentNode;
     }
 
     public static void main(String[] args) {

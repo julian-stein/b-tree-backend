@@ -54,7 +54,7 @@ public class Node {
     }
 
     /**
-     * Private access method to add a new element to the node. Delegates depending on whether this node is a leaf or not.
+     * Public access method to add a new element to the node. Delegates depending on whether this node is a leaf or not.
      * @param newElement the element to add.
      */
     public void addElement(Element newElement) {
@@ -110,7 +110,7 @@ public class Node {
     }
 
     /**
-     * Check whether this node contains the given elementKey.
+     * Checks whether this node contains the given elementKey.
      * @param elementKey: the elementKey to check for.
      * @return true if this node contains the given key, false otherwise.
      */
