@@ -3,9 +3,11 @@ package com.dhbw.btreebackend.btreeimplementation;
 public class BTree {
     private int order;
     private Node root;
+    private int elementsMax;
+    private int elementMin;
 
     public BTree(int order) {
-        this.order = order;
+        setOrder(order);
     }
 
     /**
@@ -55,7 +57,7 @@ public class BTree {
      * @param inspectedNode the node to check.
      */
     private void checkOverflow(Node inspectedNode) {
-        if(inspectedNode != null && inspectedNode.getNumberOfElements() > this.order) {
+        if(inspectedNode != null && inspectedNode.getNumberOfElements() > this.elementsMax) {
             Node parentNode = splitNode(inspectedNode);
             checkOverflow(parentNode);
         }
@@ -84,6 +86,16 @@ public class BTree {
         splitElement.setRightNode(rightNode);
         parentNode.addElement(splitElement);
         return parentNode;
+    }
+
+    /**
+     * Set this.order and calculate and set this.elementsMax and this.elementsMin based on order
+     * @param order new order to set.
+     */
+    public void setOrder(int order) {
+        this.order = order;
+        this.elementsMax = order - 1;
+        this.elementMin = order / 2 + ((order % 2 == 0) ? 0 : 1);
     }
 
     public static void main(String[] args) {
