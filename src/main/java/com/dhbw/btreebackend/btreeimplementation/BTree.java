@@ -1,5 +1,7 @@
 package com.dhbw.btreebackend.btreeimplementation;
 
+import com.dhbw.btreebackend.json.BTreeToJson;
+
 public class BTree {
     private int order;
     private Node root;
@@ -112,11 +114,18 @@ public class BTree {
         this.elementMin = order / 2 + ((order % 2 == 0) ? 0 : 1);
     }
 
+    public int getOrder() {
+        return this.order;
+    }
+
+    public Node getRoot() {
+        return this.root;
+    }
+
     public static void main(String[] args) {
         BTree myTree = new BTree(5);
-        for(int i = 1; i < 54; ++i) {
+        for (int i = 1; i < 54; ++i) {
             myTree.insertElement(i);
         }
-        myTree.deleteElement(36);
     }
 }

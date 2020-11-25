@@ -3,22 +3,30 @@ package com.dhbw.btreebackend.btreeimplementation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Node {
     private List<Element> elements;
     private Node parentNode;
+    private UUID uuid;
 
     public Node(Node parentNode) {
         this.parentNode = parentNode;
         this.elements = new ArrayList<>();
+        this.uuid = UUID.randomUUID();
     }
     public Node(Node parentNode, List<Element> elements) {
         this.parentNode = parentNode;
         this.elements = new ArrayList<>();
         this.elements.addAll(elements);
+        this.uuid = UUID.randomUUID();
     }
 
 
+
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public List<Element> getSmallerSplitSublistOfElements(int splitIndex) {
         // TODO: exceptionhandling/check index bounds
