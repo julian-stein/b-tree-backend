@@ -33,17 +33,18 @@ public class BTree {
      * Search for the location of given key.
      * @param elementKey the key to search for.
      * @return BTreeSearchResult object containing information on whether the element was found,
-     *         where it was found and how many nodes had to be accessed.
+     *         where it was found, the element itself and how many nodes had to be accessed.
      */
     public BTreeSearchResult searchElement(int elementKey) {
         Node inspectedNode = this.root;
         int costs = 1;
         while(true) {
-            if(inspectedNode.containsKey(elementKey)) {
-                return new BTreeSearchResult(true, inspectedNode, costs);
-            } else if(inspectedNode.isLeaf()) {
-                return new BTreeSearchResult(false, inspectedNode, costs);
-            } else {
+            Element elementWithKeyInInspectedNode = inspectedNode.getElementWithKey(elementKey);
+            if(elementWithKeyInInspectedNode != null) {     // inspected node contains key
+                return new BTreeSearchResult(inspectedNode, elementWithKeyInInspectedNode, costs);
+            } else if(inspectedNode.isLeaf()) {             // inspected node does not contain key and is leaf
+                return new BTreeSearchResult(inspectedNode, null, costs);
+            } else {                                        // keep traversing tree
                 inspectedNode = inspectedNode.getRootOfSubtreeForElementKey(elementKey);
             }
             ++costs;

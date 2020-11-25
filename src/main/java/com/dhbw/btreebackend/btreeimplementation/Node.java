@@ -30,6 +30,10 @@ public class Node {
         return this.elements.subList((splitIndex+1), getNumberOfElements());
     }
 
+    /**
+     * Set this as parent of all children. Necessary after some elements have been moved to this node after split.
+     * If this is a leaf node, do nothing as this has no children.
+     */
     public void setChildrenParent() {
         if(!isLeaf()) {
             for (Element element : this.elements) {
@@ -95,18 +99,22 @@ public class Node {
         return elements.size() == 0 || elements.get(0).getLeftNode() == null;
     }
 
+    public Element getElementWithKey(int elementKey) {
+        for(Element element : this.elements) {
+            if(element.getKey() == elementKey) {
+                return element;
+            }
+        }
+        return null;
+    }
+
     /**
      * Checks whether this node contains the given elementKey.
      * @param elementKey: the elementKey to check for.
      * @return true if this node contains the given key, false otherwise.
      */
     public boolean containsKey(int elementKey) {
-        for(Element element : this.elements) {
-            if(element.getKey() == elementKey) {
-                return true;
-            }
-        }
-        return false;
+        return getElementWithKey(elementKey) != null;
     }
 
     /**
