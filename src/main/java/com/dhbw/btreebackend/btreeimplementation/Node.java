@@ -18,21 +18,7 @@ public class Node {
         this.elements.addAll(elements);
     }
 
-    public List<Element> getElements() {
-        return this.elements;
-    }
 
-    public Node getParentNode() {
-        return this.parentNode;
-    }
-
-    public void setParentNode(Node parentNode) {
-        this.parentNode = parentNode;
-    }
-
-    public int getNumberOfElements() {
-        return this.elements.size();
-    }
 
     public List<Element> getSmallerSplitSublistOfElements(int splitIndex) {
         // TODO: exceptionhandling/check index bounds
@@ -137,5 +123,25 @@ public class Node {
             }
         }
         return elements.get(elements.size() - 1).getRightNode();
+    }
+
+    public List<Element> getElements() {
+        return this.elements;
+    }
+
+    public void setElements(List<Element> elements) {
+        this.elements = elements;
+    }
+
+    public Node getParentNode() {
+        return this.parentNode;
+    }
+
+    public void setParentNode(Node parentNode) {
+        this.parentNode = parentNode;
+    }
+
+    public int getNumberOfElements() {
+        return this.elements.size();
     }
 }

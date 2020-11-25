@@ -78,12 +78,14 @@ public class BTree {
         } else {
             parentNode = toSplit.getParentNode();
         }
-        Node leftNode = new Node(parentNode, toSplit.getSmallerSplitSublistOfElements(splitIndex));
-        leftNode.setChildrenParent();
         Node rightNode = new Node(parentNode, toSplit.getGreaterSplitSublistOfElements(splitIndex));
         rightNode.setChildrenParent();
-        splitElement.setLeftNode(leftNode);
         splitElement.setRightNode(rightNode);
+
+        toSplit.setParentNode(parentNode);
+        toSplit.setElements(toSplit.getSmallerSplitSublistOfElements(splitIndex));
+        splitElement.setLeftNode(toSplit);
+
         parentNode.addElement(splitElement);
         return parentNode;
     }
@@ -99,7 +101,7 @@ public class BTree {
     }
 
     public static void main(String[] args) {
-        BTree myTree = new BTree(4);
+        BTree myTree = new BTree(5);
         for(int i = 1; i < 18; ++i) {
             myTree.insertElement(i);
         }
