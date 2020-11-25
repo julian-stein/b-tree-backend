@@ -91,6 +91,17 @@ public class BTree {
         return parentNode;
     }
 
+    public boolean deleteElement(int elementKey) {
+        BTreeSearchResult bTreeSearchResult = searchElement(elementKey);
+        if(bTreeSearchResult.isFound()) {
+            Node balancingStart = bTreeSearchResult.getLocation().deleteElement(bTreeSearchResult.getElement());
+            // TODO: balance
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Set this.order and calculate and set this.elementsMax and this.elementsMin based on order
      * @param order new order to set.
@@ -103,8 +114,9 @@ public class BTree {
 
     public static void main(String[] args) {
         BTree myTree = new BTree(5);
-        for(int i = 1; i < 18; ++i) {
+        for(int i = 1; i < 54; ++i) {
             myTree.insertElement(i);
         }
+        myTree.deleteElement(36);
     }
 }

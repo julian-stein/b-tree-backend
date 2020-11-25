@@ -92,6 +92,32 @@ public class Node {
     }
 
     /**
+     * Delete the given element from this node.
+     * If this is a leaf node, just remove the element.
+     * If this is an inner node:
+     *      - Get the greatest element of the this node's left child and pseudo-recursively remove that from its node
+     *        until a leaf node is reached.
+     *      - After returning from a pseudo-recursive call adjust references and replace elementToDelete in this node
+     *        with the greatest elements of this node's left child.
+     * @param elementToDelete the element to delete.
+     * @return the leaf node reached at the end of the recursion on which the BTree has to start re-balancing.
+     */
+    public Node deleteElement(Element elementToDelete) {
+        if(isLeaf()) {
+            this.elements.remove(elementToDelete);
+            return this;
+        } else {
+            Element greatestLeft = elementToDelete.getLeftNode().getElements()
+                    .get(elementToDelete.getLeftNode().getElements().size() - 1);
+            Node balancingStart = elementToDelete.getLeftNode().deleteElement(greatestLeft);
+            greatestLeft.setLeftNode(elementToDelete.getLeftNode());
+            greatestLeft.setRightNode(elementToDelete.getRightNode());
+            this.elements.set(this.elements.indexOf(elementToDelete), greatestLeft);
+            return balancingStart;
+        }
+    }
+
+    /**
      * Checks whether this node is a leaf.
      * @return true if this node is a leaf, false otherwise.
      */
