@@ -21,7 +21,7 @@ public class BTreeToJson {
         int treeHeight = 1;
         if (bTree.getRoot() != null) {
             Node currentLeft = bTree.getRoot();
-            while (currentLeft.getElements().get(0).getLeftNode() != null) {
+            while (currentLeft.getElements().size() != 0 && currentLeft.getElements().get(0).getLeftNode() != null) {
                 ++treeHeight;
                 currentLeft = currentLeft.getElements().get(0).getLeftNode();
             }
@@ -49,6 +49,7 @@ public class BTreeToJson {
 
         if (bTree.getRoot() != null) {
             levelOrderTree.add(bTree.getRoot());
+            numberLeaves = 1;
 
             if (bTree.getRoot().getElements().get(0).getLeftNode() != null) {
                 lastNode = bTree.getRoot();
@@ -85,8 +86,7 @@ public class BTreeToJson {
 
         jsonTree.add("Order", bTree.getOrder())
                 .add("Height", treeHeight)
-                .add("NumberLeaves", numberLeaves)
-                .add("Highlighted", JsonValue.NULL);
+                .add("NumberLeaves", numberLeaves);
 
         for (Node n : levelOrderTree) {
             jsonTreeNodes.add(createNodeJson(n));
