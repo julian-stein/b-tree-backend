@@ -5,26 +5,46 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This class represents a node of a BTree.
+ * Contains a list of elements.
+ * Contains a reference to its parent node.
+ * Contains a UUID used by the frontend application to draw a BTree.
+ * Contains a reference 'phantomRef' which is used as a temporary reference store when a node is left with zero elements
+ *      after two of his children have been merged. As a result this node cannot store a reference to the merge result
+ *      in one of his elements and thus uses 'phantomRef' as a temporary reference store until the underflow has been
+ *      processed.
+ * Offers various methods to enquire and manipulate its state.
+ *
+ * @author Julian Stein
+ * @version 1.0
+ */
 public class Node {
     private List<Element> elements;
     private Node parentNode;
+    private final UUID uuid;
     private Node phantomRef;
-    private UUID uuid;
 
+    /**
+     * A constructor using only a reference to the parent node as initial parameters.
+     * @param parentNode parent node of the newly created node.
+     */
     public Node(Node parentNode) {
         this.parentNode = parentNode;
         this.elements = new ArrayList<>();
         this.uuid = UUID.randomUUID();
     }
+
+    /**
+     * A constructor using a reference to the parent node and a list of elements as initial parameters.
+     * @param parentNode parent node of the newly created node.
+     * @param elements list of elements to create the node with.
+     */
     public Node(Node parentNode, List<Element> elements) {
         this.parentNode = parentNode;
         this.elements = new ArrayList<>();
         this.elements.addAll(elements);
         this.uuid = UUID.randomUUID();
-    }
-
-    public UUID getUuid() {
-        return uuid;
     }
 
     /**
@@ -33,7 +53,6 @@ public class Node {
      * @return list of elements.
      */
     public List<Element> getSmallerSplitSublistOfElements(int splitIndex) {
-        // TODO: exceptionhandling/check index bounds
         return this.elements.subList(0, splitIndex);
     }
 
@@ -43,7 +62,6 @@ public class Node {
      * @return list of elements.
      */
     public List<Element> getGreaterSplitSublistOfElements(int splitIndex) {
-        // TODO: exceptionhandling//check index bounds
         return this.elements.subList((splitIndex+1), getNumberOfElements());
     }
 
@@ -79,7 +97,6 @@ public class Node {
      * @param newElement the element to add.
      */
     private void addLeafElement(Element newElement) {
-        // TODO: reconsider efficiency, maybe use addNonLeafElement instead
         this.elements.add(newElement);
         Collections.sort(this.elements);
     }
@@ -138,7 +155,6 @@ public class Node {
      * @param toPrepend element to prepend.
      */
     public void prependElement(Element toPrepend) {
-
         this.elements.add(0, toPrepend);
     }
 
@@ -190,6 +206,11 @@ public class Node {
         this.elements.remove(elementToDrop);
     }
 
+    /**
+     * Replace a given old element of this node with a give replacement element.
+     * @param oldElement the old element to be replaced.
+     * @param newElement the new element to replace the old element with.
+     */
     public void replaceElement(Element oldElement, Element newElement) {
         this.elements.set(this.elements.indexOf(oldElement), newElement);
     }
@@ -241,12 +262,21 @@ public class Node {
 
     /**
      * Checks whether this node is a leaf.
+     * elements.size() == 0 may cause internal nodes during balancing to be considered as 'leaves' which is desired
+     * so addElement(Element element) will just add the element without adjusting references using
+     * addLeafElement(Element element) instead of using addNonLeafElement(Element element) which would cause an error
+     * when called on a node with zero element.
      * @return true if this node is a leaf, false otherwise.
      */
     public boolean isLeaf() {
         return elements.size() == 0 || elements.get(0).getLeftNode() == null;
     }
 
+    /**
+     * Get the element of this node representing the given key.
+     * @param elementKey the key to get the element for.
+     * @return the Element object representing the key if it exists, null otherwise.
+     */
     public Element getElementWithKey(int elementKey) {
         for(Element element : this.elements) {
             if(element.getKey() == elementKey) {
@@ -257,20 +287,11 @@ public class Node {
     }
 
     /**
-     * Checks whether this node contains the given elementKey.
-     * @param elementKey: the elementKey to check for.
-     * @return true if this node contains the given key, false otherwise.
-     */
-    public boolean containsKey(int elementKey) {
-        return getElementWithKey(elementKey) != null;
-    }
-
-    /**
      * Get the root node of the subtree of this node in which the given elementKey is/would be located.
-     * @param elementKey:
+     * @param elementKey the element to get the subtree for.
      * @return root node of the subtree, null if this node is a leaf.
      * @throws IndexOutOfBoundsException thrown if the node contains no elements (in which case the node should no
-     *          longer exist).
+     *          longer exist when this method is called on it).
      */
     public Node getRootOfSubtreeForElementKey(int elementKey) throws IndexOutOfBoundsException{
         for(Element element : this.elements) {
@@ -279,6 +300,31 @@ public class Node {
             }
         }
         return elements.get(elements.size() - 1).getRightNode();
+    }
+
+    /**
+     * Get a list of all element keys of the subtree with this node as its root node, ordered ascending.
+     * If this is a leaf node, return a list of all element keys in this node.
+     * Otherwise pseudo-recursively call this method on all children of this node adding the separator elements in
+     *      between.
+     * @return an ArrayList of all element keys of the subtree with this node as its root node, ordered ascending
+     */
+    public ArrayList<Integer> getAllElementKeysOfSubtreeOrderedAscending() {
+        if(isLeaf()) {
+            ArrayList<Integer> keys = new ArrayList<>();
+            for(Element element : this.elements) {
+                keys.add(element.getKey());
+            }
+            return keys;
+        } else {
+            ArrayList<Integer> keys = new ArrayList<>();
+            for (Element element : this.elements) {
+                keys.addAll(element.getLeftNode().getAllElementKeysOfSubtreeOrderedAscending());
+                keys.add(element.getKey());
+            }
+            keys.addAll(getGreatestElement().getRightNode().getAllElementKeysOfSubtreeOrderedAscending());
+            return keys;
+        }
     }
 
     /**
@@ -296,6 +342,16 @@ public class Node {
     public Element getGreatestElement() {
         return (this.elements.size() != 0) ? this.elements.get(this.elements.size() - 1) : null;
     }
+
+    /**
+     * Get the number of elements this node contains.
+     * @return number of elements this node contains.
+     */
+    public int getNumberOfElements() {
+        return this.elements.size();
+    }
+
+    /* Standard getters and setters */
 
     public List<Element> getElements() {
         return this.elements;
@@ -321,7 +377,7 @@ public class Node {
         this.phantomRef = phantomRef;
     }
 
-    public int getNumberOfElements() {
-        return this.elements.size();
+    public UUID getUuid() {
+        return uuid;
     }
 }

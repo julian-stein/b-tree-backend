@@ -1,5 +1,21 @@
 package com.dhbw.btreebackend.btreeimplementation;
 
+import java.util.ArrayList;
+
+/**
+ * A class representing a BTree.
+ * Contains the order of the BTree.
+ * Contains a reference to the BTree's root node.
+ * Contains elementsMax indicating the maximum number of elements a node can contain.
+ * Contains elementsMin indicating the minimum number of elements a node has to contain.
+ *
+ * Offers public access methods to insert, delete or search for element keys, to access or set the BTree's order and
+ *      root, to clear the BTree, and to get all element keys ordered ascending.
+ * Contains private methods to balance the tree after insertion or deletion of elements.
+ *
+ * @author Julian Stein
+ * @version 0.9
+ */
 public class BTree {
     private int order;
     private Node root;
@@ -8,28 +24,6 @@ public class BTree {
 
     public BTree(int order) {
         setOrder(order);
-    }
-
-    /**
-     * Insert a new element with the given key into the BTree.
-     * If the tree is empty create a new root node and add te new element to it.
-     * Otherwise search for insert position and insert new element the normal way.
-     * @param elementKey the key to insert.
-     */
-    public boolean insertElement(int elementKey) {
-        if(root == null) {
-            this.root = new Node(null);
-            this.root.addElement(new Element(elementKey));
-            return true;
-        } else {
-            BTreeSearchResult insertPosition = searchElement(elementKey);
-            if(!insertPosition.isFound()) {
-                insertPosition.getLocation().addElement(new Element(elementKey));
-                checkOverflow(insertPosition.getLocation());
-                return true;
-            }
-            return false;
-        }
     }
 
     /**
@@ -60,9 +54,31 @@ public class BTree {
     }
 
     /**
+     * Insert a new element with the given key into the BTree.
+     * If the tree is empty create a new root node and add te new element to it.
+     * Otherwise search for insert position and insert new element the normal way.
+     * @param elementKey the key to insert.
+     */
+    public boolean insertElement(int elementKey) {
+        if(root == null) {
+            this.root = new Node(null);
+            this.root.addElement(new Element(elementKey));
+            return true;
+        } else {
+            BTreeSearchResult insertPosition = searchElement(elementKey);
+            if(!insertPosition.isFound()) {
+                insertPosition.getLocation().addElement(new Element(elementKey));
+                checkOverflow(insertPosition.getLocation());
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /**
      * Check whether an overflow occured in the given node.
-     * If so, split the node and recursivly call checkOverflow with parent node until a node without an overflow is reached
-     * the root was processed.
+     * If so, split the node and recursively call checkOverflow with parent node until a node without an overflow is
+     * reached or the root was processed.
      * @param inspectedNode the node to check.
      */
     private void checkOverflow(Node inspectedNode) {
@@ -116,6 +132,17 @@ public class BTree {
         }
     }
 
+    /**
+     * Check whether an underflow occured in the given node.
+     * If so and the given node is not the BTree's root,
+     *  delegate processing based on the given node's neighbours and their elements:
+     *  If one of the neighbours has more than the minimum number of elements, perform a rotation.
+     *      If both neighbours qualify for a rotation, perform a rightwards rotation using the left neighbour.
+     *  If none of the neighbours has more than the minimum number of elements, merge the node into one of his neighbours.
+     *      If the node has two neighbours, merge the node into his left neighbour.
+     * If the node given node the root and has no elements left, set the BTree's root to null. The BTree is now empty.
+     * @param inspectedNode the node to check.
+     */
     private void checkUnderflow(Node inspectedNode) {
         if(inspectedNode != this.root && inspectedNode.getNumberOfElements() < this.elementMin) {
             Node[] neighbours = inspectedNode.getNeighbours();
@@ -126,15 +153,30 @@ public class BTree {
                 // has right neighbour and right neighbour has more than minimum number of elements --> rotate left
                 rotateLeft(inspectedNode, neighbours[1]);
             } else if(neighbours[0] != null) {
-                mergeRightInLeftNode(neighbours[0], inspectedNode);
+                // has left neighbour --> merge into left neighbour
+                mergeRightIntoLeftNode(neighbours[0], inspectedNode);
             } else if(neighbours[1] != null) {
-                mergeLeftInRightNode(inspectedNode, neighbours[1]);
+                // has right neighbour --> merge into right neighbour
+                mergeLeftIntoRightNode(inspectedNode, neighbours[1]);
             }
         } else if(inspectedNode == this.root && inspectedNode.getNumberOfElements() < 1) {
+            // no elements left in root at this point --> last element was deleted --> BTree is empty
             this.root = null;
         }
     }
 
+    /**
+     * Perform a rightwards rotation using the given nodes.
+     * Move the element separating the two nodes in the parent node to the left edge of the right node.
+     * Move the greatest element of the left node to the position of the former separator.
+     * Adjust references accordingly. Doing so, check the right node for a phantomRef if it contains no elements and use
+     *      it as the former separator's new right child node. Set the right node's phantomRef to null afterwards.
+     * Adjust the right node's (old and) new children's parentNode references to reference the right node.
+     *
+     * After finishing the rotation the BTree is balanced.
+     * @param left the left node to move away elements from.
+     * @param right the right node to move elements to (node with underflow).
+     */
     private void rotateRight(Node left, Node right) {
         Node parentNode = left.getParentNode();
         Element separator = parentNode.getSeparatorElementForChildNodes(left, right);
@@ -151,11 +193,21 @@ public class BTree {
             right.setChildrenParent();
             parentNode.replaceElement(separator, greatestOfLeft);
             left.dropElement(greatestOfLeft);
-
-            // checkUnderflow(parentNode);
         }
     }
 
+    /**
+     * Perform a leftwards rotation using the given nodes.
+     * Move the element separating the two nodes in the parent node to the right edge of the left node.
+     * Move the smallest element of the right node to the position of the former separator.
+     * Adjust references accordingly. Doing so, check the left node for a phantomRef if it contains no elements and use
+     *      it as the former separator's new left child node. Set the left node's phantomRef to null afterwards.
+     * Adjust the left node's (old and) new children's parentNode references to reference the left node.
+     *
+     * After finishing the rotation the BTree is balanced.
+     * @param left the left node to move elements to (node with underflow).
+     * @param right the right node to move elements away from.
+     */
     private void rotateLeft(Node left, Node right) {
         Node parentNode = left.getParentNode();
         Element separator = parentNode.getSeparatorElementForChildNodes(left, right);
@@ -172,17 +224,27 @@ public class BTree {
             left.setChildrenParent();
             parentNode.replaceElement(separator, smallestOfRight);
             right.dropElement(smallestOfRight);
-
-            // checkUnderflow(parentNode);
         }
     }
 
     /**
-     * right is underflow
-     * @param left
-     * @param right
+     * Merge the given right node into the given left node moving down and sandwiching the element
+     *      separating the two nodes in the parent node.
+     * Move the former separator to the right edge of the left node.
+     * Append the elements of the right node to the right edge of the left node.
+     * Adjust references accordingly. Doing so, check the right node for a phantomRef if it contains no elements and use
+     *      it the as the former separators new right child node. Set the right node's phantomRef to null afterwards.
+     * Adjust the left node's (old and) new children's parentNode references to reference the left node.
+     *
+     * If the parentNode of the two nodes is the root and is left with zero elements after the merge, the merge result
+     *      becomes the root of the BTree.
+     * If the parentNode of the two nodes is not the root:
+     *      If the parent node is left with zero elements, set its phantomRef to the merge result.
+     *      Call checkUnderflow with the parentNode to rebalance the BTree from there if necessary.
+     * @param left the node to merge the right node into.
+     * @param right the node to merge into the left node; (node with underflow).
      */
-    private void mergeRightInLeftNode(Node left, Node right) {
+    private void mergeRightIntoLeftNode(Node left, Node right) {
         Node parentNode = left.getParentNode();
         Element separator = parentNode.getSeparatorElementForChildNodes(left, right);
         if(separator != null) {     // always true because of the way parameters have been determined, however check included
@@ -198,7 +260,7 @@ public class BTree {
 
             if(parentNode == this.root && parentNode.getNumberOfElements() == 0) {
                 this.root = left;
-            } else {
+            } else if(parentNode != this.root){
                 if(parentNode.getNumberOfElements() == 0) {
                     parentNode.setPhantomRef(left);
                 }
@@ -208,11 +270,24 @@ public class BTree {
     }
 
     /**
+     * Merge the given left node into the given right node moving down and sandwiching the element
+     *      separating the two nodes in the parent node.
+     * Move the former separator to the left edge of the right node.
+     * Prepend the elements of the left node to the left edge of the right node.
+     * Adjust references accordingly. Doing so, check the left node for a phantomRef if it contains no elements and use
+     *      it the as the former separators new left child node. Set the left node's phantomRef to null afterwards.
+     * Adjust the right node's (old and) new children's parentNode references to reference the right node.
+     *
+     * If the parentNode of the two nodes is the root and is left with zero elements after the merge, the merge result
+     *      becomes the root of the BTree.
+     * If the parentNode of the two nodes is not the root:
+     *      If the parent node is left with zero elements, set its phantomRef to the merge result.
+     *      Call checkUnderflow with the parentNode to rebalance the BTree from there if necessary.
      * left ist underflow
-     * @param left
-     * @param right
+     * @param left the node to merge into the right node; (node with underflow).
+     * @param right the node to merge the left node into.
      */
-    private void mergeLeftInRightNode(Node left, Node right) {
+    private void mergeLeftIntoRightNode(Node left, Node right) {
         Node parentNode = left.getParentNode();
         Element separator = parentNode.getSeparatorElementForChildNodes(left, right);
         if(separator != null) {     // always true because of the way parameters have been determined, however check included
@@ -228,7 +303,7 @@ public class BTree {
 
             if(parentNode == this.root && parentNode.getNumberOfElements() == 0) {
                 this.root = right;
-            } else {
+            } else if(parentNode != this.root){
                 if(parentNode.getNumberOfElements() == 0) {
                     parentNode.setPhantomRef(right);
                 }
@@ -238,15 +313,40 @@ public class BTree {
     }
 
     /**
-     * Set this.order and calculate and set this.elementsMax and this.elementsMin based on order
+     * Clear the BTree by setting its root to null.
+     */
+    public void clear() {
+        this.root = null;
+    }
+
+    /**
+     * Get all keys contained in the BTree ordered ascending.
+     * @return all contained keys ordered ascending.
+     */
+    public ArrayList<Integer> getAllElementKeysOrderedAscending() {
+        return this.root.getAllElementKeysOfSubtreeOrderedAscending();
+    }
+
+    /**
+     * Set this.order and calculate and set this.elementsMax and this.elementsMin based on order.
+     * Clear the BTree's root and insert all previously contained element keys in a loop.
      * @param order new order to set.
      */
     public void setOrder(int order) {
-        //TODO: rebuild tree
+        ArrayList<Integer> keys = new ArrayList<>();
+        if(this.root != null) {
+            keys = getAllElementKeysOrderedAscending();
+            this.root = null;
+        }
         this.order = order;
         this.elementsMax = order - 1;
         this.elementMin = (order / 2 + ((order % 2 == 0) ? 0 : 1)) - 1;
+        for(int key : keys) {
+            this.insertElement(key);
+        }
     }
+
+    /* Standard getters and setters */
 
     public int getOrder() {
         return this.order;
@@ -256,7 +356,11 @@ public class BTree {
         return this.root;
     }
 
-    public void reset() {
-        this.root = null;
+    public static void main(String[] args) {
+        BTree myTree = new BTree(3);
+        for(int i = 1; i<18; ++i) {
+            myTree.insertElement(i);
+        }
+        myTree.deleteElement(10);
     }
 }

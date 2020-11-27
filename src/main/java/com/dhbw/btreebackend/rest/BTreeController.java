@@ -14,12 +14,15 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * @author Elias Müller
+ * @version 1.0
+ */
 @CrossOrigin
 @RestController
 @RequestMapping ("/api")
@@ -30,7 +33,7 @@ public class BTreeController {
 
     @GetMapping(value = "/reset")
     public ResponseEntity<Object> resetTree() {
-        this.bTree.reset();
+        this.bTree.clear();
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
@@ -138,7 +141,8 @@ public class BTreeController {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Ordnung 0 impossible");
         }
-        // TODO Change Order of new Tree @Julian Stein
+        // TODO: check that new order is at least 3
+        bTree.setOrder(newOrder);
 
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
         answerTreeList.add(BTreeToJson.createBTreeJson(bTree));

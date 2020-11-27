@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Elias Müller
+ * @version 1.0
+ */
 public class BTreeToJson {
 
     /**
