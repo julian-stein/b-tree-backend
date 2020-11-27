@@ -16,6 +16,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -26,6 +27,12 @@ public class BTreeController {
 
     @Autowired
     private BTree bTree;
+
+    @GetMapping(value = "/reset")
+    public ResponseEntity<Object> resetTree() {
+        this.bTree.reset();
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
 
     /**
      * This method provides the endpoint for adding new values. It gets a list of new elements and calls the
@@ -66,9 +73,7 @@ public class BTreeController {
                 answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
             }
         }
-        if(answerTreeList.size() == 0) {
-            answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
-        }
+
         return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
     }
 
@@ -147,7 +152,7 @@ public class BTreeController {
      * @param valuesToAdd: The List of values to add to the tree.
      * @return ResponseEntity, containing the JSON of the new tree and Http status-code 200(Ok).
      */
-    private ResponseEntity<Object> getInsertedTreeRepresentationsAndInsertElements(List<Integer> valuesToAdd) {
+    private ResponseEntity<Object>  getInsertedTreeRepresentationsAndInsertElements(List<Integer> valuesToAdd) {
 
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
         for (Integer i : valuesToAdd) {
@@ -155,14 +160,15 @@ public class BTreeController {
                 answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
             }
         }
-        if(answerTreeList.size() == 0) {
-            answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
-        }
+
         return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
     }
 
     /**
-     * This method creates a list of random values based on the given input metrics.
+     * This method creates a list of pseudo-random values based on the given input metrics.
+     * If the ratio of needed randoms to possible randoms based on the range is too large,
+     * a different random function gets called.
+     *
      * @param min: The minimum value of the random values.
      * @param number: The number of random values.
      * @param max: The maximum value of the random values.
@@ -170,10 +176,26 @@ public class BTreeController {
      */
     private List<Integer> getRandomMetrics(int min, int number, int max) {
         List<Integer> randomNumbers = new ArrayList<Integer>();
-        for ( int i = 0; i < number; i++) {
-            randomNumbers.add(ThreadLocalRandom.current().nextInt(min, max + 1));
+
+        if (number / (max - (float) min) > 0.65) {
+            ArrayList<Integer> allPossibleValuesList = new ArrayList<Integer>();
+            for (int i = min; i <= max; i++) {
+                allPossibleValuesList.add(i);
+            }
+            Collections.shuffle(allPossibleValuesList);
+            randomNumbers = allPossibleValuesList.subList(0, (Math.min(number, allPossibleValuesList.size())));
+
+        } else {
+            for (int i = 0; i < number; i++) {
+                int random = ThreadLocalRandom.current().nextInt(min, max + 1);
+                if(!randomNumbers.contains(random)) {
+                    randomNumbers.add(random);
+                } else {
+                    i--;
+                }
+            }
         }
+
         return randomNumbers;
     }
-
 }

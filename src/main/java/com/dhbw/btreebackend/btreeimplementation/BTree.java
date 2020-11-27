@@ -256,13 +256,7 @@ public class BTree {
         return this.root;
     }
 
-    public static void main(String[] args) {
-        BTree myTree = new BTree(3);
-        for(int i = 1; i < 18; ++i) {
-            myTree.insertElement(i);
-        }
-        myTree.deleteElement(10);
-        myTree.insertElement(10);
-        myTree.deleteElement(10);
+    public void reset() {
+        this.root = null;
     }
 }
