@@ -62,12 +62,13 @@ public class BTreeController {
         }
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
         for (Integer i : deleteElements) {
-            bTree.deleteElement(i);
-            answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
-            System.out.println("Tree added");
+            if(bTree.deleteElement(i)) {
+                answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
+            }
         }
-        System.out.println(answerTreeList);
-
+        if(answerTreeList.size() == 0) {
+            answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
+        }
         return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
     }
 
@@ -150,12 +151,13 @@ public class BTreeController {
 
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
         for (Integer i : valuesToAdd) {
-            bTree.insertElement(i);
-            answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
-            System.out.println("Tree added");
+            if(bTree.insertElement(i)) {
+                answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
+            }
         }
-        System.out.println(answerTreeList);
-
+        if(answerTreeList.size() == 0) {
+            answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
+        }
         return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
     }
 

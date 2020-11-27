@@ -29,6 +29,10 @@ public class BTreeSearchResult {
         setElement(element);
     }
 
+    public BTreeSearchResult() {
+
+    }
+
     public boolean isFound() {
         return found;
     }
