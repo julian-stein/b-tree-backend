@@ -5,13 +5,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import javax.management.MXBean;
-
+/**
+ * The basic SpringBootApplication class to start the application and create the BTree object used by other classes.
+ *
+ * @author Elias Müller
+ * @version 1.0
+ */
 @SpringBootApplication
 public class BTreeBackendApplication {
 
     /**
-     * This Bean provides the BTree and injects it to the other classes.
+     * This Bean provides the BTree with a default order of 5 and injects it to the other classes.
      * @return BTree: The BTree itself.
      */
     @Bean
