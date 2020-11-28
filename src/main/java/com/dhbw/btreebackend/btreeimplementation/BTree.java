@@ -135,7 +135,8 @@ public class BTree {
     /**
      * Check whether an underflow occured in the given node.
      * If so and the given node is not the BTree's root,
-     *  delegate processing based on the given node's neighbours and their elements:
+     *  delegate processing based on the given node's neighbours, which are determined getting the separator elements
+     *  in the parent node, and their elements:
      *  If one of the neighbours has more than the minimum number of elements, perform a rotation.
      *      If both neighbours qualify for a rotation, perform a rightwards rotation using the left neighbour.
      *  If none of the neighbours has more than the minimum number of elements, merge the node into one of his neighbours.
@@ -145,19 +146,21 @@ public class BTree {
      */
     private void checkUnderflow(Node inspectedNode) {
         if(inspectedNode != this.root && inspectedNode.getNumberOfElements() < this.elementMin) {
-            Node[] neighbours = inspectedNode.getNeighbours();
-            if(neighbours[0] != null && neighbours[0].getNumberOfElements() > elementMin) {
+            Element[] neighbourSeparators = inspectedNode.getNeighbourSeparators();
+            Node leftNeighbour = neighbourSeparators[0] != null ? neighbourSeparators[0].getLeftNode() : null;
+            Node rightNeighbour = neighbourSeparators[1] != null ? neighbourSeparators[1].getRightNode() : null;
+            if(leftNeighbour != null && leftNeighbour.getNumberOfElements() > elementMin) {
                 // has left neighbour and left neighbour has more than minimum number of elements --> rotate right
-                rotateRight(neighbours[0], inspectedNode);
-            } else if(neighbours[1] != null && neighbours[1].getNumberOfElements() > elementMin) {
+                rotateRight(leftNeighbour, inspectedNode);
+            } else if(rightNeighbour != null && rightNeighbour.getNumberOfElements() > elementMin) {
                 // has right neighbour and right neighbour has more than minimum number of elements --> rotate left
-                rotateLeft(inspectedNode, neighbours[1]);
-            } else if(neighbours[0] != null) {
+                rotateLeft(inspectedNode, rightNeighbour);
+            } else if(leftNeighbour != null) {
                 // has left neighbour --> merge into left neighbour
-                mergeRightIntoLeftNode(neighbours[0], inspectedNode);
-            } else if(neighbours[1] != null) {
+                mergeRightIntoLeftNode(leftNeighbour, inspectedNode, neighbourSeparators[0], neighbourSeparators[1]);
+            } else if(rightNeighbour != null) {
                 // has right neighbour --> merge into right neighbour
-                mergeLeftIntoRightNode(inspectedNode, neighbours[1]);
+                mergeLeftIntoRightNode(inspectedNode, rightNeighbour, neighbourSeparators[1], neighbourSeparators[0]);
             }
         } else if(inspectedNode == this.root && inspectedNode.getNumberOfElements() < 1) {
             // no elements left in root at this point --> last element was deleted --> BTree is empty
@@ -232,8 +235,11 @@ public class BTree {
      *      separating the two nodes in the parent node.
      * Move the former separator to the right edge of the left node.
      * Append the elements of the right node to the right edge of the left node.
-     * Adjust references accordingly. Doing so, check the right node for a phantomRef if it contains no elements and use
-     *      it the as the former separators new right child node. Set the right node's phantomRef to null afterwards.
+     * Adjust references accordingly.
+     *      Doing so, check if the separator has an element to his right. If so, set separatorsRightNeighbourElement's
+     *          left child reference to the merge result as the previous left child no longer exists after the merge.
+     *      Doing so, check the right node for a phantomRef if it contains no elements and use
+     *          it the as the former separators new right child node. Set the right node's phantomRef to null afterwards.
      * Adjust the left node's (old and) new children's parentNode references to reference the left node.
      *
      * If the parentNode of the two nodes is the root and is left with zero elements after the merge, the merge result
@@ -243,13 +249,19 @@ public class BTree {
      *      Call checkUnderflow with the parentNode to rebalance the BTree from there if necessary.
      * @param left the node to merge the right node into.
      * @param right the node to merge into the left node; (node with underflow).
+     * @param separator the element separating the given left and right node in the parent node.
+     * @param separatorsRightNeighbourElement the right neighbour element of the separator in the parent node. Can be
+     *          null if the right node has no right neighbour.
      */
-    private void mergeRightIntoLeftNode(Node left, Node right) {
+    private void mergeRightIntoLeftNode(Node left, Node right,
+                                        Element separator, Element separatorsRightNeighbourElement) {
         Node parentNode = left.getParentNode();
-        Element separator = parentNode.getSeparatorElementForChildNodes(left, right);
         if(separator != null) {     // always true because of the way parameters have been determined, however check included
             Element greatestOfLeft = left.getGreatestElement();
             Element smallestOfRight = right.getSmallestElement();
+            if(separatorsRightNeighbourElement != null) {
+                separatorsRightNeighbourElement.setLeftNode(left);
+            }
             separator.setLeftNode(greatestOfLeft.getRightNode());
             separator.setRightNode((smallestOfRight != null) ? smallestOfRight.getLeftNode() : right.getPhantomRef());
             right.setPhantomRef(null);
@@ -274,8 +286,11 @@ public class BTree {
      *      separating the two nodes in the parent node.
      * Move the former separator to the left edge of the right node.
      * Prepend the elements of the left node to the left edge of the right node.
-     * Adjust references accordingly. Doing so, check the left node for a phantomRef if it contains no elements and use
-     *      it the as the former separators new left child node. Set the left node's phantomRef to null afterwards.
+     * Adjust references accordingly.
+     *      Doing so, check if the separator has an element to his left. If so, set separatorsLeftNeighbourElement's
+     *          right child reference to the merge result as the previous right child no longer exists after the merge.
+     *      Doing so, check the left node for a phantomRef if it contains no elements and use
+     *          it the as the former separators new left child node. Set the left node's phantomRef to null afterwards.
      * Adjust the right node's (old and) new children's parentNode references to reference the right node.
      *
      * If the parentNode of the two nodes is the root and is left with zero elements after the merge, the merge result
@@ -283,16 +298,25 @@ public class BTree {
      * If the parentNode of the two nodes is not the root:
      *      If the parent node is left with zero elements, set its phantomRef to the merge result.
      *      Call checkUnderflow with the parentNode to rebalance the BTree from there if necessary.
-     * left ist underflow
      * @param left the node to merge into the right node; (node with underflow).
      * @param right the node to merge the left node into.
+     * @param separator the element separating the given left and right node in the parent node.
+     * @param separatorsLeftNeighbourElement the left neighbour element of the separator in the parent node. Can be
+     *          null if the left node has no left neighbour.
+     *
+     * In the current balancing-implementation @param separatorsLeftNeighbourElement will always be null as this merge-
+     * method will only get called if the left node has no left neighbour. However, for completeness and to keep the
+     * possibility to switch things around the function has been implemented completely.
      */
-    private void mergeLeftIntoRightNode(Node left, Node right) {
+    private void mergeLeftIntoRightNode(Node left, Node right,
+                                        Element separator, Element separatorsLeftNeighbourElement) {
         Node parentNode = left.getParentNode();
-        Element separator = parentNode.getSeparatorElementForChildNodes(left, right);
         if(separator != null) {     // always true because of the way parameters have been determined, however check included
             Element greatestOfLeft = left.getGreatestElement();
             Element smallestOfRight = right.getSmallestElement();
+            if(separatorsLeftNeighbourElement != null) {
+                separatorsLeftNeighbourElement.setRightNode(right);
+            }
             separator.setLeftNode((greatestOfLeft != null) ? greatestOfLeft.getRightNode() : left.getPhantomRef());
             separator.setRightNode(smallestOfRight.getLeftNode());
             left.setPhantomRef(null);

@@ -216,15 +216,20 @@ public class Node {
     }
 
     /**
+     * Get the elements of the parent separating this node from its left and right neighbour.
      * If this is no root node (i.e. parentNode != null):
-     *      Get the left and the right neighbour of this node by iterating over this.parentNode's elements until element
-     *      referencing this node is found. Set neighbours based on whether this is left child of most left element in parent
-     *      or right child of most right element in parent or in between.
-     * @return two-element array of Nodes where Node at index 0 is the left neighbour and Node at index 1 is the right
-     *         neighbour. Array elements can be null.
+     *      Get the elements of the parent node separating this node from its left and right neighbour by iterating over
+     *      this.parentNode's elements until an element referencing this node as its left child is found.
+     *      Set neighbourSeparators based on whether this is left child of most left element in parent, e.g. no left neighbour,
+     *      or not, e.g. right and left neighbours exist.
+     *      If no element referencing this node as its left child is found, this node is the right child of the most
+     *      right element of the parent, e.g. no right neighbour.
+     * @return two-element array of Elements where Element at index 0 is the Element separating this node from its left
+     *         neighbour and Element at index 1 is the Element separating this node from its right neighbour.
+     *         Array elements can be null.
      */
-    public Node[] getNeighbours() {
-        Node[] neighbours = new Node[2];
+    public Element[] getNeighbourSeparators() {
+        Element[] neighbourSeparators = new Element[2];
         if(this.parentNode != null) {
             boolean found = false;
             // loop over parents elements
@@ -232,17 +237,17 @@ public class Node {
                 Element currentElement = this.parentNode.getElements().get(i);
                 if (currentElement.getLeftNode() == this) {
                     // if this is left child of most left element in parent --> no left neighbour
-                    neighbours[0] = (i == 0) ? null : this.parentNode.getElements().get(i - 1).getLeftNode();
-                    neighbours[1] = currentElement.getRightNode();
+                    neighbourSeparators[0] = (i == 0) ? null : this.parentNode.getElements().get(i - 1);
+                    neighbourSeparators[1] = currentElement;
                     found = true;
                 }
             }
             if (!found) {    // this is right child of most right element in parent --> no right neighbour
-                neighbours[0] = this.parentNode.getElements().get(this.parentNode.getNumberOfElements() - 1).getLeftNode();
-                neighbours[1] = null;
+                neighbourSeparators[0] = this.parentNode.getGreatestElement();
+                neighbourSeparators[1] = null;
             }
         }
-        return neighbours;
+        return neighbourSeparators;
     }
 
     /**
