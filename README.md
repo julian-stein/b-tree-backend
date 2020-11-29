@@ -49,14 +49,17 @@ When inserting new elements the insert position in a leaf node is searched for a
 
 ### Description of the delete algorithm
 When removing an element two cases are differentiated:
-- Removal from a leaf node: 
-- Removal from an internal node
+- Removal from a leaf node: Just remove the element and start balancing the tree starting at the leaf node.
+- Removal from an internal node: Replace the element to remove with the greatest element in the left subtree, which is located in a leaf node. Remove the replacement from the leaf node and start balancing at the leaf node.
+
+### Description of the balancing algorithm for an underflow
+Rebalancing a node X: If X is the root node and has 0 elements left, the tree is now empty. Otherwise, if X is not the root node, determine based on the neighbours of X and the number of their elements what to do:
+- X has left neighbour and left neighbour has more than the minimum number of elements: Perform a rightwards rotation moving the greatest element of the left neighbour to the parent node at the position of the element separating X and his left neighbour and moving the separating element to left edge of X. The tree is now balanced.
+- X has no left neighbour but has a right neighbour containing more than the minimum number of elements: Perform a leftwards rotation moving the smallest element of the right neighbour to the parent node at the position of the element separating X and his left neighbour and moving the separating element to right edge of X. The tree is now balanced.
+- No neighbour of X has more than the minimum number of elements: Merge X with its left neighbour (or right neighbour if X has no left neighbour) moving the element separating X and its neighbour in the parent element down to the node node resulting from the merge. If the parent is the root node and has zero elements left, set the merge result as the new root node. If the parent node is not the root node and now has less than the minimum number of elements, start balancing on the parent.
 
 ### Description of change order algorithm
 When changing the order of the BTree the tree is rebuilt. After recursively retreiving all elements, the tree is reset and the order is changed. Next all former elements get inserted one by one.
-
-
-
 
 ### Description of the RPCs
 The RPC communication bases on plain http-calls. The backend endpoints consume and return specific data,
