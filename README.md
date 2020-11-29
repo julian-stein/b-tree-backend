@@ -62,6 +62,20 @@ Rebalancing a node X: If X is the root node and has 0 elements left, the tree is
 ### Description of change order algorithm
 When changing the order of the BTree the tree is rebuilt. After recursively retreiving all elements, the tree is reset and the order is changed. Next all former elements get inserted one by one.
 
+### Description of the JSON-Parser for the BTree
+The JSON-parser first counts the steps from root to leave, to get the height oft the tree.
+After that, every node of the tree gets added to a list, which will be sorted in 'level-order'.
+To make this work, first the root will be added to the 'previousRow'-list and to the whole 'levelOrderTree'-list.
+Additionally, the last node of the tree (the last row's most right node) is got, to terminate the loop later on.
+Then for every node in the previous row list, every element's children will be added to the 'currentRow'-list. 
+Further, the 'currentRow'-list removes all dupcliates (which are added because children are stored redundant as 
+left and right child of every element).
+Last, the whole currentRow-List gets added to the 'levelOrderTree'-list and the 'currentRow' becomes the 'previousRow'.
+This ends when the last node is added to the 'currentRow'-list.
+After ordering the tree in 'level-order' a JSON-representation of the tree is created, by looping over the ordered nodes
+and converting them to JSON-strings. Last the height of the tree, the number of the leaves and the order are added as
+JSON-attributes
+
 ### Description of the RPCs
 The RPC communication bases on plain http-calls. The backend endpoints consume and return specific data,
 as defined in the API-definition below.
