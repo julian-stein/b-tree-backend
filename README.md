@@ -1,7 +1,8 @@
 # BTreeBackend - SpringBootApplication
 
 ## Installation
-To make this project work, you also need the b-tree-frontend provided in this [repository!](https://github.com/eliasmueller/b-tree-frontend)
+To use this project work, you can use the b-tree-frontend provided in this [repository!](https://github.com/eliasmueller/b-tree-frontend) to visualize and command the BTree. Alternatively, you can attach your own framework compatible with RPCs described at the end of the README or just add other Java-Classes managing and manipulating the BTree.
+In the following, the installation with the associated frontend application is explained.
 The application is meant to be used locally, which is why the connection only works via localhost and if the to containers are running on the same machine.
 
 First of all, you have to install a local [Docker environment](https://www.docker.com/get-started) to your machine, if you do not have one installed already.
