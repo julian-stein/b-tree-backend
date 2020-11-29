@@ -51,7 +51,7 @@ When inserting new elements the insert position in a leaf node is searched for a
 ### Description of the delete algorithm
 When removing an element two cases are differentiated:
 - Removal from a leaf node: Just remove the element and start balancing the tree starting at the leaf node.
-- Removal from an internal node: Replace the element to remove with the greatest element in the left subtree, which is located in a leaf node. Remove the replacement from the leaf node and start balancing at the leaf node.
+- Removal from an internal node: Replace the element to remove with the greatest element in the left subtree, which is located in a leaf node. Remove the replacement from the leaf node and start balancing at that leaf node.
 
 ### Description of the balancing algorithm for an underflow
 Rebalancing a node X: If X is the root node and has 0 elements left, the tree is now empty. Otherwise, if X is not the root node, determine based on the neighbours of X and the number of their elements what to do:
