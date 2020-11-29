@@ -64,7 +64,7 @@ Insert new elements.
 consumes: [int] (the positive integers representing the new elements to be added)
 returns: [JSON] (an array that represents of the steps of adding the new elements)
 
-Remove elements.
+- Remove elements.
 /api (DELETE)
 consumes: [int] (the positive integers representing the  elements to be removed)
 returns: [JSON] (an array that represents the steps of removing the elements)
