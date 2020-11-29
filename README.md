@@ -1,4 +1,4 @@
-# BTreeFrontend - Angular application
+# BTreeBackend - SpringBootApplication
 
 ## Installation
 To make this project work, you also need the b-tree-frontend provided in this [repository!](https://github.com/eliasmueller/b-tree-frontend)
