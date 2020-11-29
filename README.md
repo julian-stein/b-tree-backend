@@ -59,7 +59,7 @@ When removing an element two cases are differentiated:
 The RPC communication bases on plain http-calls. The backend endpoints consume and return specific data,
 as defined in the API-definition below.
 
-Insert new elements.
+- Insert new elements.
 /api (POST)
 consumes: [int] (the positive integers representing the new elements to be added)
 returns: [JSON] (an array that represents of the steps of adding the new elements)
@@ -69,22 +69,22 @@ returns: [JSON] (an array that represents of the steps of adding the new element
 consumes: [int] (the positive integers representing the  elements to be removed)
 returns: [JSON] (an array that represents the steps of removing the elements)
 
-Search for element.
+- Search for element.
 /api/search (POST)
 consumes: int (the element to search after)
 returns: {"Highlighted": UUID, "Costs": int} (json-object representing the highlighted node (where the element is) and the costs of searching the element)
 
-Add random elements.
+- Add random elements.
 /api/random (POST)
 consumes: [int] (min, number, max: integers representing the metrics for adding new random elements)
 returns: [JSON] (an array that represents the steps of removing the elements)
 
-Change order of the tree.
+- Change order of the tree.
 /api/changeOrder (POST)
 consumes: int
 returns: [JSON] (an array that represents the new tree with changed order)
 
-Reset the tree in the backend.
+- Reset the tree in the backend.
 /api/reset (POST)
 consumes: void
 returns: void
