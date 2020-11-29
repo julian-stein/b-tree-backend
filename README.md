@@ -43,6 +43,7 @@ After running them, open a browser page at **localhost:4200** to open the applic
 ## Function Description Backend
 The backend application contains the BTree's implementation and offers APIs for the frontend to execute common operations on the BTree (see 'Description of the RPCs' below).
 As an abstraction the BTree's elements do not contain a full dataset but an integer key only. The BTree does not allow any duplicate keys.
+For more in-depth descriptions of the algorithms check the Javadoc comments in the source code.
 
 ### Description of the insert algorithm
 When inserting new elements the insert position in a leaf node is searched for and the element will be added to it if the key does not exist already. Afterwards the tree checks whether the maximum number of elements in the node where the new element was added is exceeded (i.e. an overflow occured). If so, the tree splits the node with the overflow into two separate nodes moving the middle element to the parent as a separator for the splitted nodes. If no parent exists, a new root node is created. After moving the middle element to the parent, repeat the check for an overflow on the parent node and split the node if necessary. Repeat until a parent with no overflow is reached or a new root node was created.
