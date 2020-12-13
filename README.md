@@ -84,12 +84,12 @@ as defined in the API-definition below.
 - Insert new elements.
 /api (POST)
 consumes: [int] (the positive integers representing the new elements to be added)
-returns: [JSON] (an array that represents of the steps of adding the new elements)
+returns: JSON (JSON consisting of two arrays representing the steps of adding the new elements: one array contains the actually inserted values as duplicates are ignored, the second array contains the states of the tree after each insertion)
 
 - Remove elements.
 /api (DELETE)
 consumes: [int] (the positive integers representing the  elements to be removed)
-returns: [JSON] (an array that represents the steps of removing the elements)
+returns: JSON (JSON consisting of two arrays representing the steps of removing the elements: one array contains the actually removed values as values that do not exist cannot be removed, the second array contains the  states of the tree after each removal)
 
 - Search for element.
 /api/search (POST)
@@ -99,7 +99,7 @@ returns: {"Highlighted": UUID, "Costs": int} (json-object representing the highl
 - Add random elements.
 /api/random (POST)
 consumes: [int] (min, number, max: integers representing the metrics for adding new random elements)
-returns: [JSON] (an array that represents the steps of removing the elements)
+returns: JSON (JSON consisting of two arrays representing the steps of adding the new elements: one array contains the actually inserted values as duplicates are ignored, the second array contains the  states of the tree after each insertion)
 
 - Change order of the tree.
 /api/changeOrder (POST)
