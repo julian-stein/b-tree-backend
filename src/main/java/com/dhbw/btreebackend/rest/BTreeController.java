@@ -33,6 +33,10 @@ public class BTreeController {
     @Autowired
     private BTree bTree;
 
+    /**
+     * Reset the tree by clearing all elements and resetting the order to default value 5.
+     * @return empty response with HttpStatus 200 (OK).
+     */
     @GetMapping(value = "/reset")
     public ResponseEntity<Object> resetTree() {
         this.bTree.clear();

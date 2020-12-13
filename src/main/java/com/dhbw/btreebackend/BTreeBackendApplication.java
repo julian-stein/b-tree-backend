@@ -13,14 +13,14 @@ import org.springframework.context.annotation.Bean;
  */
 @SpringBootApplication
 public class BTreeBackendApplication {
-
+    public static final int DEFAULT_ORDER = 5;
     /**
      * This Bean provides the BTree with a default order of 5 and injects it to the other classes.
      * @return BTree: The BTree itself.
      */
     @Bean
     public BTree bTree () {
-        return new BTree(5);
+        return new BTree(DEFAULT_ORDER);
     }
 
     public static void main(String[] args) {

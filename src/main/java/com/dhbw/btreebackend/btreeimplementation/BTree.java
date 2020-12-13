@@ -1,5 +1,7 @@
 package com.dhbw.btreebackend.btreeimplementation;
 
+import com.dhbw.btreebackend.BTreeBackendApplication;
+
 import java.util.ArrayList;
 
 /**
@@ -337,10 +339,11 @@ public class BTree {
     }
 
     /**
-     * Clear the BTree by setting its root to null.
+     * Clear the BTree by setting its root to null and reset order to default 5.
      */
     public void clear() {
         this.root = null;
+        this.setOrder(BTreeBackendApplication.DEFAULT_ORDER);
     }
 
     /**
