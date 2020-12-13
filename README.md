@@ -81,24 +81,24 @@ JSON-attributes
 The RPC communication bases on plain http-calls. The backend endpoints consume and return specific data,
 as defined in the API-definition below.
 
-- Insert new elements.
-/api (POST)
-consumes: [int] (the positive integers representing the new elements to be added)
+- Insert new elements.\
+/api (POST)\
+consumes: [int] (the positive integers representing the new elements to be added)\
 returns: JSON (JSON consisting of two arrays representing the steps of adding the new elements: one array contains the actually inserted values as duplicates are ignored, the second array contains the states of the tree after each insertion)
 
-- Remove elements.
-/api (DELETE)
-consumes: [int] (the positive integers representing the  elements to be removed)
+- Remove elements.\
+/api (DELETE)\
+consumes: [int] (the positive integers representing the  elements to be removed)\
 returns: JSON (JSON consisting of two arrays representing the steps of removing the elements: one array contains the actually removed values as values that do not exist cannot be removed, the second array contains the  states of the tree after each removal)
 
-- Search for element.
-/api/search (POST)
-consumes: int (the element to search after)
+- Search for element.\
+/api/search (POST)\
+consumes: int (the element to search after)\
 returns: {"Highlighted": UUID, "Costs": int} (json-object representing the highlighted node (where the element is) and the costs of searching the element)
 
-- Add random elements.
-/api/random (POST)
-consumes: [int] (min, number, max: integers representing the metrics for adding new random elements)
+- Add random elements.\
+/api/random (POST)\
+consumes: [int] (min, number, max: integers representing the metrics for adding new random elements)\
 returns: JSON (JSON consisting of two arrays representing the steps of adding the new elements: one array contains the actually inserted values as duplicates are ignored, the second array contains the  states of the tree after each insertion)
 
 - Change order of the tree.\
@@ -106,7 +106,7 @@ returns: JSON (JSON consisting of two arrays representing the steps of adding th
 consumes: int\
 returns: [JSON] (an array that represents the new tree with changed order)
 
-- Reset the tree in the backend.
-/api/reset (POST)
-consumes: void
+- Reset the tree in the backend.\
+/api/reset (POST)\
+consumes: void\
 returns: void
