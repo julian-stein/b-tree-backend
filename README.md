@@ -101,9 +101,9 @@ returns: {"Highlighted": UUID, "Costs": int} (json-object representing the highl
 consumes: [int] (min, number, max: integers representing the metrics for adding new random elements)
 returns: JSON (JSON consisting of two arrays representing the steps of adding the new elements: one array contains the actually inserted values as duplicates are ignored, the second array contains the  states of the tree after each insertion)
 
-- Change order of the tree.
-/api/changeOrder (POST)
-consumes: int
+- Change order of the tree.\
+/api/changeOrder (POST)\
+consumes: int\
 returns: [JSON] (an array that represents the new tree with changed order)
 
 - Reset the tree in the backend.
