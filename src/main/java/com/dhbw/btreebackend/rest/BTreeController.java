@@ -27,6 +27,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @RestController
 @RequestMapping ("/api")
 public class BTreeController {
+    private static final String INTEGER_LIST_KEY = "Values";
+    private static final String TREE_LIST_KEY = "Trees";
 
     @Autowired
     private BTree bTree;
@@ -43,7 +45,8 @@ public class BTreeController {
      * JSON-representation of the tree for every insertion, to display the single steps in the frontend.
      *
      * @param newElements: The list of new elements, that will be added to the tree.
-     * @return ResponseEntity, containing the JSON-List of the trees and Http status-code 200(Ok).
+     * @return ResponseEntity, containing the JSON-List of inserted values, JSON-List of the trees
+     *      and Http status-code 200(Ok).
      */
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> addElements(@RequestBody List<Integer> newElements) {
@@ -60,24 +63,30 @@ public class BTreeController {
      * This method provides the endpoint for removing values from the tree. It gets a list of elements and removes
      * them iterative from the tree, while creating a JSON-representation for every step.
      *
-     * @param deleteElements: The list of  elements, that will be removde from the tree.
-     * @return ResponseEntity, containing the JSON-List of the trees and Http status-code 200(Ok).
+     * @param elementsToDelete: The list of  elements, that will be removde from the tree.
+     * @return ResponseEntity, containing the JSON-List of deleted values, JSON-List of the trees
+     *      and Http status-code 200(Ok).
      */
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> deleteElements(@RequestBody List<Integer> deleteElements) {
-
-        if (deleteElements == null) {
+    public ResponseEntity<Object> deleteElements(@RequestBody List<Integer> elementsToDelete) {
+        if (elementsToDelete == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Elemente nicht vollständig!");
         }
+        List<Integer> deletedElements = new ArrayList<>();
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
-        for (Integer i : deleteElements) {
+        for (Integer i : elementsToDelete) {
             if(bTree.deleteElement(i)) {
+                deletedElements.add(i);
                 answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
             }
         }
+        JsonObject responseJson = Json.createObjectBuilder().
+                add(INTEGER_LIST_KEY, deletedElements.toString()).
+                add(TREE_LIST_KEY, answerTreeList.toString()).
+                build();
 
-        return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
+        return new ResponseEntity<>(responseJson.toString(), HttpStatus.OK);
     }
 
     /**
@@ -113,7 +122,8 @@ public class BTreeController {
      * creates a JSON-representation of the tree for every insertion, to display the single steps in the frontend.
      *
      * @param randomMetrics: The list of new elements, that will be added to the tree.
-     * @return ResponseEntity, containing the JSON-List of the trees and Http status-code 200(Ok).
+     * @return ResponseEntity, containing the JSON-List of inserted values, JSON-List of the trees
+     *      and Http status-code 200(Ok).
      */
     @PostMapping(value = "random", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> randomElements(@RequestBody List<Integer> randomMetrics) {
@@ -136,12 +146,6 @@ public class BTreeController {
      */
     @PostMapping(value = "changeOrder", produces =  MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> changeOrder(@RequestBody int newOrder){
-
-        if (newOrder == 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Ordnung 0 impossible");
-        }
-        // TODO: check that new order is at least 3
         bTree.setOrder(newOrder);
 
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
@@ -154,18 +158,22 @@ public class BTreeController {
      * This method inserts the elements to tree and creates a JSON-representation of the tree for every insertion,
      * to display the single steps in the frontend.
      * @param valuesToAdd: The List of values to add to the tree.
-     * @return ResponseEntity, containing the JSON of the new tree and Http status-code 200(Ok).
+     * @return ResponseEntity, containing the JSON-List of inserted values, JSON-List of the trees
+     *      and Http status-code 200(Ok).
      */
     private ResponseEntity<Object>  getInsertedTreeRepresentationsAndInsertElements(List<Integer> valuesToAdd) {
-
+        List<Integer> addedValues = new ArrayList<>();
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
         for (Integer i : valuesToAdd) {
             if(bTree.insertElement(i)) {
+                addedValues.add(i);
                 answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
             }
         }
+        JsonObject responseJson = Json.createObjectBuilder().
+                add(INTEGER_LIST_KEY, addedValues.toString()).add(TREE_LIST_KEY, answerTreeList.toString()).build();
 
-        return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
+        return new ResponseEntity<>(responseJson.toString(), HttpStatus.OK);
     }
 
     /**
