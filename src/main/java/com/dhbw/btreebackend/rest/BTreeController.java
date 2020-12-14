@@ -155,7 +155,12 @@ public class BTreeController {
         List<JsonObject> answerTreeList = new ArrayList<JsonObject>();
         answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
 
-        return new ResponseEntity<>(answerTreeList.toString(), HttpStatus.OK);
+        JsonObject responseJson = Json.createObjectBuilder().
+                add(INTEGER_LIST_KEY, "").
+                add(TREE_LIST_KEY, answerTreeList.toString()).
+                build();
+
+        return new ResponseEntity<>(responseJson.toString(), HttpStatus.OK);
     }
 
     /**
