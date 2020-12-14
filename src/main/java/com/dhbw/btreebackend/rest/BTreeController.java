@@ -156,7 +156,7 @@ public class BTreeController {
         answerTreeList.add(BTreeToJson.createBTreeJson(bTree));
 
         JsonObject responseJson = Json.createObjectBuilder().
-                add(INTEGER_LIST_KEY, "").
+                add(INTEGER_LIST_KEY, JsonValue.NULL).
                 add(TREE_LIST_KEY, answerTreeList.toString()).
                 build();
 
